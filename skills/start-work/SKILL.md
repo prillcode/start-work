@@ -69,7 +69,32 @@ Check if `.planning/[identifier]-[work-name]/` already exists:
 
 Auto-create `.planning/` if it doesn't exist.
 
-## Step 5: Generate BRIEF.md
+## Step 5: Gather Relevant Files
+
+Use AskUserQuestion to prompt for relevant file paths:
+
+**Question:** "Would you like to specify relevant files for this work?"
+
+**Options:**
+1. **Yes, I'll provide paths** - Prompt for comma-separated or line-separated relative paths
+   - Accept formats: `src/file.ts`, `./src/file.ts`, `src/dir/`
+   - Store paths for inclusion in BRIEF.md
+2. **No, scan automatically** - Use work name keywords to scan codebase
+   - Search for files matching keywords from work name
+   - Present findings for user confirmation before including
+3. **Skip** - No files section in BRIEF.md
+
+**If user provides paths:**
+- Validate paths exist (warn if not found, but include anyway)
+- Store as-is for BRIEF.md
+
+**If automatic scan:**
+- Extract keywords from work name (e.g., `api-refactor` → `api`, `refactor`)
+- Use Grep/Glob to find relevant files
+- Present list to user for confirmation/refinement
+- Only include confirmed files
+
+## Step 6: Generate BRIEF.md
 
 Use template from `templates/work-brief.md`:
 - Replace `[Work Name]` with provided work name
@@ -77,14 +102,18 @@ Use template from `templates/work-brief.md`:
 - Replace `[Type]` with selected work type
 - Replace `[What needs to be done and why]` with brief description
 - Add planning instructions header with actual identifier
+- **If relevant files were provided/confirmed:**
+  - Add a "## Relevant Files" section after Objective
+  - List files as markdown links: `[filename](relative/path/to/file)`
+  - Group by directory if multiple files from same location
 
-## Step 6: Generate ROADMAP.md
+## Step 7: Generate ROADMAP.md
 
 Use template from `templates/work-roadmap.md`:
 - Replace `[Work Name]` with provided work name
 - Replace `[identifier]` with actual identifier
 
-## Step 7: Output Next Steps
+## Step 8: Output Next Steps
 
 Display to user:
 ```
@@ -97,7 +126,7 @@ Next steps:
 4. Commits: Use standard prefixes (feat:, fix:, refactor:, docs:)
 ```
 
-## Step 8: Offer Root-Level Docs (If Missing)
+## Step 9: Offer Root-Level Docs (If Missing)
 
 Check if root-level BRIEF.md and ROADMAP.md exist in `.planning/`:
 - If missing → Use AskUserQuestion to offer creating them
