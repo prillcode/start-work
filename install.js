@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const readline = require('readline');
 
 const colors = {
   reset: '\x1b[0m',
@@ -37,6 +38,20 @@ function logHeader(message) {
   log(`\n${colors.bold}${message}${colors.reset}`);
 }
 
+function promptUser(question) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer.toLowerCase().trim());
+    });
+  });
+}
+
 function copyRecursive(src, dest) {
   if (fs.statSync(src).isDirectory()) {
     if (!fs.existsSync(dest)) {
@@ -50,20 +65,30 @@ function copyRecursive(src, dest) {
   }
 }
 
-function backupIfExists(targetPath, name) {
+async function backupIfExists(targetPath, name) {
   if (fs.existsSync(targetPath)) {
     logWarning(`${name} already exists`);
-    logInfo(`Backing up existing ${name}...`);
-    const backupPath = `${targetPath}.backup.${Date.now()}`;
-    fs.renameSync(targetPath, backupPath);
-    logSuccess(`Backed up to ${backupPath}`);
+    const answer = await promptUser(`Create backup before overwriting? (y/N): `);
+
+    if (answer === 'y' || answer === 'yes') {
+      logInfo(`Backing up existing ${name}...`);
+      const backupPath = `${targetPath}.backup.${Date.now()}`;
+      fs.renameSync(targetPath, backupPath);
+      logSuccess(`Backed up to ${backupPath}`);
+    } else {
+      logInfo(`Overwriting existing ${name} without backup`);
+    }
     return true;
   }
   return false;
 }
 
-function install() {
-  logHeader('📦 Installing Start Work Planning Suite');
+async function install() {
+  // Get version from package.json
+  const packageJson = require('./package.json');
+  const version = packageJson.version;
+
+  logHeader(`📦 Installing Start Work Planning Suite v${version}`);
   console.log();
   logInfo('This package includes:');
   console.log('  • start-work skill - Initialize work items');
@@ -104,7 +129,7 @@ function install() {
   const createPlansSource = path.join(sourceSkillsDir, 'create-plans');
   const createPlansTarget = path.join(skillsDir, 'create-plans');
 
-  backupIfExists(createPlansTarget, 'create-plans skill');
+  await backupIfExists(createPlansTarget, 'create-plans skill');
 
   try {
     copyRecursive(createPlansSource, createPlansTarget);
@@ -119,7 +144,7 @@ function install() {
   const startWorkSource = path.join(sourceSkillsDir, 'start-work');
   const startWorkTarget = path.join(skillsDir, 'start-work');
 
-  backupIfExists(startWorkTarget, 'start-work skill');
+  await backupIfExists(startWorkTarget, 'start-work skill');
 
   try {
     copyRecursive(startWorkSource, startWorkTarget);
@@ -212,10 +237,8 @@ function install() {
 }
 
 // Run installation
-try {
-  install();
-} catch (error) {
+install().catch((error) => {
   logError(`Installation failed: ${error.message}`);
   console.error(error);
   process.exit(1);
-}
+});
