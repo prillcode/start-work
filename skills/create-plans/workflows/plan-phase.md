@@ -6,8 +6,8 @@
 2. references/plan-format.md
 3. references/scope-estimation.md
 4. references/checkpoints.md
-5. Read `.planning/ROADMAP.md`
-6. Read `.planning/BRIEF.md`
+5. Read `${PLANNING_BASE}/ROADMAP.md` (after detecting context)
+6. Read `${PLANNING_BASE}/BRIEF.md` (after detecting context)
 
 **If domain expertise should be loaded (determined by intake):**
 7. Read domain SKILL.md: `~/.claude/skills/expertise/[domain]/SKILL.md`
@@ -25,11 +25,34 @@ gets transformed into a prompt.
 
 <process>
 
+<step name="detect_context">
+Determine if we're in a work item directory (from start-work) or project root:
+
+```bash
+pwd
+```
+
+**Check working directory pattern:**
+- If path contains `.planning/[identifier]-[work-name]/` → **Work item mode**
+  - Use current directory (`.`) as base
+  - BRIEF at `./BRIEF.md`, ROADMAP at `./ROADMAP.md`, phases at `./phases/`
+  - Example: `.planning/mdo-471-feature-name/`
+
+- Otherwise → **Project mode**
+  - Use `.planning/` as base
+  - BRIEF at `.planning/BRIEF.md`, ROADMAP at `.planning/ROADMAP.md`, phases at `.planning/phases/`
+  - Example: project root
+
+Set `PLANNING_BASE` variable:
+- Work item mode: `PLANNING_BASE="."`
+- Project mode: `PLANNING_BASE=".planning"`
+</step>
+
 <step name="identify_phase">
 Check roadmap for phases:
 ```bash
-cat .planning/ROADMAP.md
-ls .planning/phases/
+cat ${PLANNING_BASE}/ROADMAP.md
+ls ${PLANNING_BASE}/phases/
 ```
 
 If multiple phases available, ask which one to plan.
@@ -198,13 +221,13 @@ Loop until "Create phase prompt" selected.
 Use template from `templates/phase-prompt.md`.
 
 **If single plan:**
-Write to `.planning/phases/XX-name/{phase}-01-PLAN.md`
+Write to `${PLANNING_BASE}/phases/XX-name/{phase}-01-PLAN.md`
 
 **If multiple plans:**
 Write multiple files:
-- `.planning/phases/XX-name/{phase}-01-PLAN.md`
-- `.planning/phases/XX-name/{phase}-02-PLAN.md`
-- `.planning/phases/XX-name/{phase}-03-PLAN.md`
+- `${PLANNING_BASE}/phases/XX-name/{phase}-01-PLAN.md`
+- `${PLANNING_BASE}/phases/XX-name/{phase}-02-PLAN.md`
+- `${PLANNING_BASE}/phases/XX-name/{phase}-03-PLAN.md`
 
 Each file follows the template structure:
 
@@ -231,12 +254,12 @@ Output: [What artifacts will be created by this plan]
 </execution_context>
 
 <context>
-@.planning/BRIEF.md
-@.planning/ROADMAP.md
+@${PLANNING_BASE}/BRIEF.md
+@${PLANNING_BASE}/ROADMAP.md
 [If research done:]
-@.planning/phases/XX-name/FINDINGS.md
+@${PLANNING_BASE}/phases/XX-name/FINDINGS.md
 [If continuing from previous plan:]
-@.planning/phases/XX-name/{phase}-{prev}-SUMMARY.md
+@${PLANNING_BASE}/phases/XX-name/{phase}-{prev}-SUMMARY.md
 [Relevant source files:]
 @src/path/to/relevant.ts
 </context>
@@ -255,7 +278,7 @@ Output: [What artifacts will be created by this plan]
 </success_criteria>
 
 <output>
-After completion, create `.planning/phases/XX-name/{phase}-{plan}-SUMMARY.md`
+After completion, create `${PLANNING_BASE}/phases/XX-name/{phase}-{plan}-SUMMARY.md`
 [Include summary structure from template]
 </output>
 ```
@@ -269,7 +292,7 @@ After completion, create `.planning/phases/XX-name/{phase}-{plan}-SUMMARY.md`
 <step name="offer_next">
 **If single plan:**
 ```
-Phase plan created: .planning/phases/XX-name/{phase}-01-PLAN.md
+Phase plan created: ${PLANNING_BASE}/phases/XX-name/{phase}-01-PLAN.md
 [X] tasks defined.
 
 What's next?

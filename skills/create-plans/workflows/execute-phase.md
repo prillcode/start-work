@@ -6,6 +6,27 @@ Execute a phase prompt (PLAN.md) and create the outcome summary (SUMMARY.md).
 
 <process>
 
+<step name="detect_context">
+Determine if we're in a work item directory (from start-work) or project root:
+
+```bash
+pwd
+```
+
+**Check working directory pattern:**
+- If path contains `.planning/[identifier]-[work-name]/` → **Work item mode**
+  - Use current directory (`.`) as base
+  - ROADMAP at `./ROADMAP.md`, phases at `./phases/`
+
+- Otherwise → **Project mode**
+  - Use `.planning/` as base
+  - ROADMAP at `.planning/ROADMAP.md`, phases at `.planning/phases/`
+
+Set `PLANNING_BASE` variable:
+- Work item mode: `PLANNING_BASE="."`
+- Project mode: `PLANNING_BASE=".planning"`
+</step>
+
 <step name="identify_plan">
 Find the next plan to execute:
 - Check ROADMAP.md for "In progress" phase
@@ -13,11 +34,11 @@ Find the next plan to execute:
 - Identify first plan without corresponding SUMMARY
 
 ```bash
-cat .planning/ROADMAP.md
+cat ${PLANNING_BASE}/ROADMAP.md
 # Look for phase with "In progress" status
 # Then find plans in that phase
-ls .planning/phases/XX-name/*-PLAN.md 2>/dev/null | sort
-ls .planning/phases/XX-name/*-SUMMARY.md 2>/dev/null | sort
+ls ${PLANNING_BASE}/phases/XX-name/*-PLAN.md 2>/dev/null | sort
+ls ${PLANNING_BASE}/phases/XX-name/*-SUMMARY.md 2>/dev/null | sort
 ```
 
 **Logic:**
@@ -44,7 +65,7 @@ Plans are divided into segments by checkpoints. Each segment is routed to optima
 **1. Check for checkpoints:**
 ```bash
 # Find all checkpoints and their types
-grep -n "type=\"checkpoint" .planning/phases/XX-name/{phase}-{plan}-PLAN.md
+grep -n "type=\"checkpoint" ${PLANNING_BASE}/phases/XX-name/{phase}-{plan}-PLAN.md
 ```
 
 **2. Analyze execution strategy:**
@@ -114,7 +135,7 @@ No segmentation benefit - execute entirely in main
 ```
 Use Task tool with subagent_type="general-purpose":
 
-Prompt: "Execute plan at .planning/phases/{phase}-{plan}-PLAN.md
+Prompt: "Execute plan at ${PLANNING_BASE}/phases/{phase}-{plan}-PLAN.md
 
 This is an autonomous plan (no checkpoints). Execute all tasks, create SUMMARY.md in phase directory, commit with message following plan's commit guidance.
 
@@ -128,7 +149,7 @@ When complete, report: plan name, tasks completed, SUMMARY path, commit hash."
 Execute segment-by-segment:
 
 For each autonomous segment:
-  Spawn subagent with prompt: "Execute tasks [X-Y] from plan at .planning/phases/{phase}-{plan}-PLAN.md. Read the plan for full context and deviation rules. Do NOT create SUMMARY or commit - just execute these tasks and report results."
+  Spawn subagent with prompt: "Execute tasks [X-Y] from plan at ${PLANNING_BASE}/phases/{phase}-{plan}-PLAN.md. Read the plan for full context and deviation rules. Do NOT create SUMMARY or commit - just execute these tasks and report results."
 
   Wait for subagent completion
 
@@ -302,7 +323,7 @@ Committing...
 <step name="load_prompt">
 Read the plan prompt:
 ```bash
-cat .planning/phases/XX-name/{phase}-{plan}-PLAN.md
+cat ${PLANNING_BASE}/phases/XX-name/{phase}-{plan}-PLAN.md
 ```
 
 This IS the execution instructions. Follow it exactly.
@@ -313,7 +334,7 @@ Before executing, check if previous phase had issues:
 
 ```bash
 # Find previous phase summary
-ls .planning/phases/*/SUMMARY.md 2>/dev/null | sort -r | head -2 | tail -1
+ls ${PLANNING_BASE}/phases/*/SUMMARY.md 2>/dev/null | sort -r | head -2 | tail -1
 ```
 
 If previous phase SUMMARY.md has "Issues Encountered" != "None" or "Next Phase Readiness" mentions blockers:
@@ -632,7 +653,7 @@ Proceed with proposed change? (yes / different approach / defer)
 
 **Trigger:** Improvement that would enhance code but isn't essential now
 
-**Action:** Add to .planning/ISSUES.md automatically, continue task
+**Action:** Add to ${PLANNING_BASE}/ISSUES.md automatically, continue task
 
 **Examples:**
 - Performance optimization (works correctly, just slower than ideal)
@@ -645,7 +666,7 @@ Proceed with proposed change? (yes / different approach / defer)
 - Accessibility enhancements beyond minimum
 
 **Process:**
-1. Create .planning/ISSUES.md if doesn't exist (use template)
+1. Create ${PLANNING_BASE}/ISSUES.md if doesn't exist (use template)
 2. Add entry with ISS-XXX number (auto-increment)
 3. Brief notification: `📋 Logged enhancement: [brief] (ISS-XXX)`
 4. Continue task without implementing
@@ -751,7 +772,7 @@ None - plan executed exactly as written.
 
 ### Deferred Enhancements
 
-Logged to .planning/ISSUES.md for future consideration:
+Logged to ${PLANNING_BASE}/ISSUES.md for future consideration:
 - ISS-001: Refactor UserService into smaller modules (discovered in Task 3)
 - ISS-002: Add connection pooling for Redis (discovered in Task 6)
 - ISS-003: Improve error messages for validation failures (discovered in Task 2)
@@ -869,7 +890,7 @@ If user chose "Skip", note it in SUMMARY.md under "Issues Encountered".
 Create `{phase}-{plan}-SUMMARY.md` as specified in the prompt's `<output>` section.
 Use templates/summary.md for structure.
 
-**File location:** `.planning/phases/XX-name/{phase}-{plan}-SUMMARY.md`
+**File location:** `${PLANNING_BASE}/phases/XX-name/{phase}-{plan}-SUMMARY.md`
 
 **Title format:** `# Phase [X] Plan [Y]: [Name] Summary`
 
@@ -922,9 +943,9 @@ Update ROADMAP.md:
 Commit plan completion (PLAN + SUMMARY + code):
 
 ```bash
-git add .planning/phases/XX-name/{phase}-{plan}-PLAN.md
-git add .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md
-git add .planning/ROADMAP.md
+git add ${PLANNING_BASE}/phases/XX-name/{phase}-{plan}-PLAN.md
+git add ${PLANNING_BASE}/phases/XX-name/{phase}-{plan}-SUMMARY.md
+git add ${PLANNING_BASE}/ROADMAP.md
 git add src/  # or relevant code directories
 git commit -m "$(cat <<'EOF'
 feat({phase}-{plan}): [one-liner from SUMMARY.md]
@@ -948,7 +969,7 @@ Confirm: "Committed: feat({phase}-{plan}): [what shipped]"
 **If more plans in this phase:**
 ```
 Plan {phase}-{plan} complete.
-Summary: .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md
+Summary: ${PLANNING_BASE}/phases/XX-name/{phase}-{plan}-SUMMARY.md
 
 [X] of [Y] plans complete for Phase Z.
 
@@ -961,7 +982,7 @@ What's next?
 **If phase complete (last plan done):**
 ```
 Plan {phase}-{plan} complete.
-Summary: .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md
+Summary: ${PLANNING_BASE}/phases/XX-name/{phase}-{plan}-SUMMARY.md
 
 Phase [Z]: [Name] COMPLETE - all [Y] plans finished.
 

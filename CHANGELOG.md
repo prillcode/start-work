@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-02-05
+
+### Added
+- Domain expertise system for framework-specific planning patterns
+- Sample domain expertise: `angular-aws-fullstack` (Angular + Fastify + AWS)
+- Domain field in project BRIEF.md template for specifying expertise
+- CREATE-DOMAIN-EXPERTISE.md prompt for generating custom domain skills
+- Version display in installer header (shows current package version)
+- Context detection in create-plans workflows (work item vs project mode)
+
+### Changed
+- Installer now prompts for backups instead of auto-creating them (default: no backup)
+- create-plans workflows detect context and use appropriate base paths
+- All workflow file paths now use `${PLANNING_BASE}` variable for flexibility
+
+### Fixed
+- Nested `.planning/` directory creation when using start-work with create-plans
+- Domain expertise scanning no longer defaults to iOS/macOS (scans available domains)
+- Backup directory pollution (only creates backups when user confirms)
+
 ## [1.1.0] - 2026-02-05
 
 ### Added
@@ -62,5 +82,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complete workflow examples
 - Troubleshooting section
 
+[1.2.0]: https://github.com/prillcode/start-work/releases/tag/v1.2.0
 [1.1.0]: https://github.com/prillcode/start-work/releases/tag/v1.1.0
 [1.0.0]: https://github.com/prillcode/start-work/releases/tag/v1.0.0

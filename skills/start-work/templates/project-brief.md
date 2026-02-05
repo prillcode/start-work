@@ -28,6 +28,9 @@
 **Tech Stack:**
 [Primary technologies and frameworks]
 
+**Domain Expertise:**
+[Domain skill to use for planning: e.g., angular-aws-fullstack, macos-apps, nextjs-ecommerce, or "none"]
+
 ## Success Metrics
 - [ ] Metric 1
 - [ ] Metric 2

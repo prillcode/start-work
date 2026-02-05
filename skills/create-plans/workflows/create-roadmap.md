@@ -13,9 +13,32 @@ that delivers value. The roadmap provides structure, not detailed tasks.
 
 <process>
 
+<step name="detect_context">
+Determine if we're in a work item directory (from start-work) or project root:
+
+```bash
+pwd
+```
+
+**Check working directory pattern:**
+- If path contains `.planning/[identifier]-[work-name]/` → **Work item mode**
+  - Use current directory (`.`) as base
+  - BRIEF at `./BRIEF.md`, phases at `./phases/`
+  - Example: `.planning/mdo-471-feature-name/`
+
+- Otherwise → **Project mode**
+  - Use `.planning/` as base
+  - BRIEF at `.planning/BRIEF.md`, phases at `.planning/phases/`
+  - Example: project root
+
+Set `PLANNING_BASE` variable:
+- Work item mode: `PLANNING_BASE="."`
+- Project mode: `PLANNING_BASE=".planning"`
+</step>
+
 <step name="check_brief">
 ```bash
-cat .planning/BRIEF.md 2>/dev/null || echo "No brief found"
+cat ${PLANNING_BASE}/BRIEF.md 2>/dev/null || echo "No brief found"
 ```
 
 **If no brief exists:**
@@ -71,29 +94,30 @@ Loop until "Create roadmap" selected.
 
 <step name="create_structure">
 ```bash
-mkdir -p .planning/phases
+mkdir -p ${PLANNING_BASE}/phases
 ```
 </step>
 
 <step name="write_roadmap">
 Use template from `templates/roadmap.md`.
 
-Write to `.planning/ROADMAP.md` with:
+Write to `${PLANNING_BASE}/ROADMAP.md` with:
 - Phase list with names and one-line descriptions
 - Dependencies (what must complete before what)
 - Status tracking (all start as "not started")
 
 Create phase directories:
 ```bash
-mkdir -p .planning/phases/01-{phase-name}
-mkdir -p .planning/phases/02-{phase-name}
+mkdir -p ${PLANNING_BASE}/phases/01-{phase-name}
+mkdir -p ${PLANNING_BASE}/phases/02-{phase-name}
 # etc.
 ```
 </step>
 
 <step name="git_commit_initialization">
-Commit project initialization (brief + roadmap together):
+Commit initialization (brief + roadmap together):
 
+**Project mode (`.planning/`):**
 ```bash
 git add .planning/
 git commit -m "$(cat <<'EOF'
@@ -105,11 +129,27 @@ Phases:
 1. [phase-name]: [goal]
 2. [phase-name]: [goal]
 3. [phase-name]: [goal]
-EOF
+
 )"
 ```
 
-Confirm: "Committed: docs: initialize [project] ([N] phases)"
+**Work item mode (`.planning/[identifier]-[work-name]/`):**
+```bash
+git add .planning/[identifier]-[work-name]/
+git commit -m "$(cat <<'EOF'
+docs([identifier]): initialize [work-name] roadmap ([N] phases)
+
+[One-liner from BRIEF.md]
+
+Phases:
+1. [phase-name]: [goal]
+2. [phase-name]: [goal]
+3. [phase-name]: [goal]
+
+)"
+```
+
+Confirm: "Committed: roadmap with [N] phases"
 </step>
 
 <step name="offer_next">
