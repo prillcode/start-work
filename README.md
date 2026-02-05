@@ -100,9 +100,9 @@ Execute PLAN.md files with intelligent segmentation for optimal quality.
 
 ## Complete Workflow
 
-### 1. Initialize Work Item
+### 1. Initialize Work Item w/ Short Description
 ```bash
-/start-work mdo-123 api-refactor
+/start-work mdo-123 "API Refactor"
 ```
 
 Creates `.planning/mdo-123-api-refactor/` with BRIEF.md and ROADMAP.md
@@ -242,8 +242,7 @@ refactor(gh-456-02): optimize database queries
 
 ## Requirements
 
-- Node.js 14.0.0 or higher
-- Claude Code CLI installed
+- Claude Code CLI installed with compatible Node version
 - Git (recommended for version control)
 
 ## Troubleshooting
