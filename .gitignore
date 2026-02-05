@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# NPM
+*.tgz
+.npm
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test output
+coverage/
+.nyc_output/
+
+# Backups
+*.backup.*
+
+# Environment
+.env
+.env.local

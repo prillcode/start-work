@@ -1,0 +1,37 @@
+{
+  "name": "@prillcode/start-work",
+  "version": "1.0.0",
+  "description": "Complete Claude Code planning suite: start-work skill for initializing work items + create-plans skill for hierarchical project planning",
+  "main": "install.js",
+  "bin": {
+    "start-work": "./install.js"
+  },
+  "keywords": [
+    "claude-code",
+    "skill",
+    "planning",
+    "workflow",
+    "project-management",
+    "start-work",
+    "create-plans"
+  ],
+  "author": "prillcode",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prillcode/start-work.git"
+  },
+  "bugs": {
+    "url": "https://github.com/prillcode/start-work/issues"
+  },
+  "homepage": "https://github.com/prillcode/start-work#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "install.js",
+    "skills/**/*",
+    "commands/**/*",
+    "README.md"
+  ]
+}
