@@ -1,6 +1,6 @@
 {
   "name": "@prillcode/start-work",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Complete Claude Code planning suite: start-work skill for initializing work items + create-plans skill for hierarchical project planning",
   "main": "install.js",
   "bin": {
