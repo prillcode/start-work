@@ -1,6 +1,8 @@
-# Start Work Planning Suite
+# Start-Work for Claude Code
 
-Complete Claude Code planning solution for solo developers and small teams. Initialize work items, create detailed phase plans, and execute with integrated workflows.
+**Start-Work** is a complete Claude Code planning solution for solo developers and small teams. Initialize work items, create detailed phase plans, and execute with integrated workflows.
+
+Not sure how to start with Claude Code? Just **Start-Work**!
 
 ## Overview
 
