@@ -4,7 +4,7 @@
   "description": "Complete Claude Code planning suite: start-work skill for initializing work items + create-plans skill for hierarchical project planning",
   "main": "install.js",
   "bin": {
-    "start-work": "./install.js"
+    "start-work": "install.js"
   },
   "keywords": [
     "claude-code",
@@ -19,7 +19,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/prillcode/start-work.git"
+    "url": "git+https://github.com/prillcode/start-work.git"
   },
   "bugs": {
     "url": "https://github.com/prillcode/start-work/issues"
